@@ -107,10 +107,6 @@ def submit_item_price(data):
             item_price.price_list_rate = xd.actual_price
             item_price.insert()
             
-            # pricelist = frappe.get_doc("Price List", item_price.price_list)
-            # if item_price.disabled == 0 and pricelist.enabled == 1:
-            # item_price.price_list_rate = xd.actual_price
-            # item_price.save()
             
         frappe.publish_realtime('msgprint', 'Background job has ended...')
         message = "Data saved"
