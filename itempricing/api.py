@@ -107,7 +107,6 @@ def submit_item_price(data):
             item_price.price_list_rate = xd.actual_price
             item_price.insert()
             
-            
         frappe.publish_realtime('msgprint', 'Background job has ended...')
         message = "Data saved"
     except Exception as e:

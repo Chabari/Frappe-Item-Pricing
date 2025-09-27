@@ -145,11 +145,11 @@ app_license = "MIT"
 # 	],
 # }
 
-doc_events = {
-    "Item Price Settings": {
-        "after_save": "itempricing.api.set_the_price",
-    }
-}
+# doc_events = {
+#     "Item Price Settings": {
+#         "after_save": "itempricing.api.set_the_price",
+#     }
+# }
 
 # Testing
 # -------
