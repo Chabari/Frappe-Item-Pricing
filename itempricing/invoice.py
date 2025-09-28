@@ -121,6 +121,7 @@ def check_customer(name):
         "doctype": "Customer",
         "customer_name": name,
         "customer_type": "Company",
+        "territory": "Kenya",
         "customer_group": "Commercial"
     })
     xcustomer.save(ignore_permissions=True)
