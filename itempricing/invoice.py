@@ -60,7 +60,6 @@ def create(**args):
                 }))
                 sales_invoice_doc.set("payments", payments)
                 
-                sales_invoice_doc.is_pos = 1
                 sales_invoice_doc.custom_send_for_signing = 0
                 sales_invoice_doc.flags.ignore_permissions = True
                 sales_invoice_doc.set_missing_values()
