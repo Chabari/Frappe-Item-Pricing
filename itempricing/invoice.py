@@ -1,5 +1,4 @@
 from erpnext.stock.doctype.batch.batch import get_batch_no, get_batch_qty, set_batch_nos
-from mtolori_api.utils import *
 from frappe.utils import flt
 from frappe.utils import flt, cint, getdate, get_datetime, nowdate, nowtime, add_days, unique, month_diff
 import traceback
