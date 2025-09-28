@@ -17,6 +17,11 @@ def create(**args):
             
             sales_invoice_doc = frappe.new_doc('Sales Invoice')
             company = get_main_company()
+            if not args.get('key'):
+                return return_message(False, "Failed to authenticate.")
+            if args.get('key') != company.custom_integration_key:
+                return return_message(False, "Failed. The key is invalid.")
+                
             customer = check_customer(args.get('customer_name') or 'Walk-in Customer')
             sales_invoice_doc.discount_amount = 0
             sales_invoice_doc.customer = customer.name
@@ -52,8 +57,6 @@ def create(**args):
                     
                 payments = []
                 
-                # create a POS Profile for the same..................
-                
                 payments.append(frappe._dict({
                     'mode_of_payment': "Cash",
                     'amount': total_amount
@@ -70,24 +73,25 @@ def create(**args):
                 return send_signing(sales_invoice_doc)
                 
             else:
-                frappe.response.success = False
-                frappe.response.message = "Failed. Shop does not exist"
+                return return_message(False, "Failed. Amount must be greater than 0")
         else:
-            frappe.response.success = False
-            frappe.response.message = "Failed. Order already created"
+            return return_message(False, "Failed. Order already created")
             
     except frappe.DoesNotExistError as e:
-        frappe.response.success = False
         frappe.log_error(frappe.get_traceback(), str(e))
-        frappe.response.message = traceback.format_exc()
         frappe.response.error = str(e)
+        return return_message(False, "Failed. Order not created")
    
     except Exception as e:
-        
-        frappe.response.success = False
         frappe.log_error(frappe.get_traceback(), str(e))
         frappe.response.error = str(e)
-        frappe.response.message = "Failed. Order not created"
+        return return_message(False, "Failed. Order not created")
+        
+def return_message(success, message):
+    frappe.response.message = message
+    frappe.response.success = success
+    return
+    
     
 def get_or_create_item(item):
     item_name = frappe.db.get_value("Item", item, "name")
