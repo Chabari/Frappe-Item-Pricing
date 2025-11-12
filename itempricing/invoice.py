@@ -15,13 +15,12 @@ def create(**args):
         sales_invoice_doc = frappe.db.get_value('Sales Invoice', {'custom_order_id': str(args.get('order_id'))}, ['name'], as_dict=1) 
         if not sales_invoice_doc:
             
+            if not args.get('items'):
+                return return_message(False, "No sales items.")
+            
             sales_invoice_doc = frappe.new_doc('Sales Invoice')
             company = get_main_company()
-            # if not args.get('key'):
-            #     return return_message(False, "Failed to authenticate.")
-            # if args.get('key') != company.custom_integration_key:
-            #     return return_message(False, "Failed. The key is invalid.")
-                
+              
             customer = check_customer(args.get('customer_name') or 'Walk-in Customer')
             sales_invoice_doc.discount_amount = 0
             sales_invoice_doc.customer = customer.name
