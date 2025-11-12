@@ -10,10 +10,20 @@ def get_main_company():
     return frappe.get_doc("Company", get_default_company())
 
 @frappe.whitelist()  
-def create():
+def create(**args):
+    import json
+
+    if not args:
+        try:
+            args = frappe.local.form_dict or {}
+            if not args:
+                data = frappe.request.data
+                if data:
+                    args = json.loads(data)
+        except Exception as e:
+            frappe.log_error(frappe.get_traceback(), "JSON Parsing Error")
+            return return_message(False, "Invalid JSON data")
     try:
-        import json
-        args = frappe.parse_json(frappe.request.data)
         sales_invoice_doc = frappe.db.get_value('Sales Invoice', {'custom_order_id': str(args.get('order_id'))}, ['name'], as_dict=1) 
         if not sales_invoice_doc:
             frappe.response.order_id = args.get('order_id')
