@@ -10,8 +10,10 @@ def get_main_company():
     return frappe.get_doc("Company", get_default_company())
 
 @frappe.whitelist()  
-def create(**args):
+def create():
     try:
+        import json
+        args = frappe.parse_json(frappe.request.data)
         sales_invoice_doc = frappe.db.get_value('Sales Invoice', {'custom_order_id': str(args.get('order_id'))}, ['name'], as_dict=1) 
         if not sales_invoice_doc:
             frappe.response.order_id = args.get('order_id')
