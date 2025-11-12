@@ -9,13 +9,11 @@ from etims.utils import *
 def get_main_company():
     return frappe.get_doc("Company", get_default_company())
 
-@frappe.whitelist(allow_guest=True)  
+@frappe.whitelist()  
 def create(**args):
-    frappe.response.args = args
     try:
         sales_invoice_doc = frappe.db.get_value('Sales Invoice', {'custom_order_id': str(args.get('order_id'))}, ['name'], as_dict=1) 
         if not sales_invoice_doc:
-            frappe.response.order_id = args.get('order_id')
             if not args.get('items'):
                 return return_message(False, "No sales items.")
             
