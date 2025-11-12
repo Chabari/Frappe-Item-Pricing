@@ -14,7 +14,7 @@ def create(**args):
     try:
         sales_invoice_doc = frappe.db.get_value('Sales Invoice', {'custom_order_id': str(args.get('order_id'))}, ['name'], as_dict=1) 
         if not sales_invoice_doc:
-            
+            frappe.response.order_id = args.get('order_id')
             if not args.get('items'):
                 return return_message(False, "No sales items.")
             
