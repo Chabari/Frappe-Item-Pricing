@@ -9,7 +9,7 @@ from etims.utils import *
 def get_main_company():
     return frappe.get_doc("Company", get_default_company())
 
-@frappe.whitelist()  
+@frappe.whitelist(allow_guest=True)  
 def create(**args):
     frappe.response.args = args
     try:
