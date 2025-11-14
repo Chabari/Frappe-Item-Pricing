@@ -5,7 +5,6 @@ import traceback
 from erpnext import get_default_company
 from etims.utils import *
 
-
 def get_main_company():
     return frappe.get_doc("Company", get_default_company())
  
@@ -60,13 +59,11 @@ def create(**args):
             
             pos_profile = frappe.db.get_value('POS Profile', {}, ['name', 'income_account'], as_dict=1) 
             default_income_account = pos_profile.income_account
-
-                       
+ 
             total_amount = 0
             
             for itm in args.get('items'):
-                item = get_or_create_item(itm.get('item_name'))          
-                           
+                item = get_or_create_item(itm.get('item_name'))                 
                 amount = flt(itm.get('rate')) * flt(itm.get('quantity'))
                 sales_invoice_doc.append('items',{
                     'item_code': item.item_code,
@@ -119,7 +116,6 @@ def return_message(success, message):
     frappe.response.message = message
     frappe.response.success = success
     return
-    
     
 def get_or_create_item(item):
     item_name = frappe.db.get_value("Item", item, "name")
