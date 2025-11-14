@@ -8,7 +8,37 @@ from etims.utils import *
 
 def get_main_company():
     return frappe.get_doc("Company", get_default_company())
+ 
+@frappe.whitelist(allow_guest=True)
+def login(username, password):
+    try:
+        login_manager = frappe.auth.LoginManager()
+        login_manager.authenticate(user=username, pwd=password)
+        login_manager.post_login()
+    except frappe.exceptions.AuthenticationError:
+        frappe.clear_messages()
+        return return_message(False, "Provided credentials were invalid.")
+    
+    login_user_session()
+    
+    return return_message(True, "Login was successfull.")
+    
+def generate_keys(user):
+    user_details = frappe.get_doc('User', user)
+    api_secret = frappe.generate_hash(length=30)
 
+    if not user_details.api_key:
+        api_key = frappe.generate_hash(length=30)
+        user_details.api_key = api_key
+    user_details.api_secret = api_secret
+    user_details.save(ignore_permissions=True)
+    return api_secret
+
+def login_user_session():
+    api_generate = generate_keys(frappe.session.user)
+    user = frappe.get_doc('User', frappe.session.user)
+    frappe.response.access_token =  user.api_key +":"+api_generate
+    
 @frappe.whitelist()  
 def create(**args):
     try:
@@ -132,26 +162,27 @@ def send_signing(doc):
     if doc.get("taxes"):
         for tax in doc.taxes:
             included_in_print_rate = tax.included_in_print_rate
-    res = sign_invoice(doc, included_in_print_rate)
-    if res and res['status'] == 200:
-        doc.custom_etims_invoice_no = str(res['data']['invoiceNo'])
-        doc.custom_etims_internal_data = res['data']['internalData']
-        doc.custom_etims_signature = res['data']['signature']
-        doc.custom_etims_scdc_id = res['data']['scdcId']
-        doc.custom_etims_scu_receipt_date = res['data']['scuReceiptDate']
-        doc.custom_etims_scu_receipt_no = str(res['data']['scuReceiptNo'])
-        doc.custom_etims_invoiceverification_url = res['data']['invoiceVerificationUrl']
-        doc.db_update()
-        data = {
-            "invoiceNo": str(res['data']['invoiceNo']),
-            "internalData": str(res['data']['internalData']),
-            "signature": str(res['data']['signature']),
-            "scdcId": str(res['data']['scdcId']),
-            "scuReceiptDate": str(res['data']['scuReceiptDate']),
-            "scuReceiptNo": str(res['data']['scuReceiptNo']),
-            "invoiceVerificationUrl": str(res['data']['invoiceVerificationUrl']),
-        }
-        frappe.response.data = data
+    if etims_main_url():
+        res = sign_invoice(doc, included_in_print_rate)
+        if res and res['status'] == 200:
+            doc.custom_etims_invoice_no = str(res['data']['invoiceNo'])
+            doc.custom_etims_internal_data = res['data']['internalData']
+            doc.custom_etims_signature = res['data']['signature']
+            doc.custom_etims_scdc_id = res['data']['scdcId']
+            doc.custom_etims_scu_receipt_date = res['data']['scuReceiptDate']
+            doc.custom_etims_scu_receipt_no = str(res['data']['scuReceiptNo'])
+            doc.custom_etims_invoiceverification_url = res['data']['invoiceVerificationUrl']
+            doc.db_update()
+            data = {
+                "invoiceNo": str(res['data']['invoiceNo']),
+                "internalData": str(res['data']['internalData']),
+                "signature": str(res['data']['signature']),
+                "scdcId": str(res['data']['scdcId']),
+                "scuReceiptDate": str(res['data']['scuReceiptDate']),
+                "scuReceiptNo": str(res['data']['scuReceiptNo']),
+                "invoiceVerificationUrl": str(res['data']['invoiceVerificationUrl']),
+            }
+            frappe.response.data = data
     frappe.response.success = True
     frappe.response.message = "Success. Order created"
     return
