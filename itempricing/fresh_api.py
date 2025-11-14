@@ -1,5 +1,4 @@
 from erpnext.stock.doctype.batch.batch import get_batch_no, get_batch_qty, set_batch_nos
-from frappe.utils import flt
 from frappe.utils import flt, cint, getdate, get_datetime, nowdate, nowtime, add_days, unique, month_diff
 import traceback
 from erpnext import get_default_company
@@ -36,7 +35,7 @@ def generate_keys(user):
 def login_user_session():
     api_generate = generate_keys(frappe.session.user)
     user = frappe.get_doc('User', frappe.session.user)
-    frappe.response.access_token =  user.api_key +":"+api_generate
+    frappe.response.token =  user.api_key +":"+api_generate
     
 @frappe.whitelist()  
 def create(**args):
