@@ -40,6 +40,8 @@ def login_user_session():
 @frappe.whitelist()  
 def create(**args):
     try:
+        frappe.log_error("RAW DATA", frappe.request.data)
+        frappe.log_error("FORM DICT", str(args))
         sales_invoice_doc = frappe.db.get_value('Sales Invoice', {'custom_order_id': str(args.get('order_id'))}, ['name'], as_dict=1) 
         if not sales_invoice_doc:
             if not args.get('items'):
